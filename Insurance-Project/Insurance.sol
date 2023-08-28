@@ -15,9 +15,6 @@ abstract contract Insurance {
     bool public isActive;          
 
     // Constructor function to set up the insurance policy
-    // _insured Address of the insured
-    // _premium Premium amount to be paid
-    // _coverageAmount Coverage amount for potential claims
     constructor(address _insured, uint _premium, uint _coverageAmount) {
         // The creator of the contract is the insurer
         insurer = msg.sender;        
