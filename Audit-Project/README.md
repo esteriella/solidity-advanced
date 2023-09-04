@@ -31,7 +31,7 @@ To enhance the 'store' function's integrity, an interim storage variable 'str' s
 
 ## Conclusion
 
-The contract, though simple, exhibits a vulnerability that may result in inadvertent data storage. However, rectifying this issue is a straightforward endeavor. It entails removing the redundant pointer, superfluous variable, and enhancing the 'store' function for structured assignment. The proposed adjustments ensure data security and contract robustness.
+The contract, though simple, exhibits a vulnerability that may result in inadvertent data storage. However, rectifying this issue is a straightforward task. It entails removing the redundant pointer, superfluous variable, and enhancing the 'store' function for structured assignment. The proposed adjustments ensure data security and contract robustness.
 
 ## Author
 
