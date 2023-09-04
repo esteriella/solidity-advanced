@@ -56,10 +56,14 @@
     margin: 0;
 }
 
+.buttondiv{
+    display: flex;
+    justify-content: space-evenly;
+}
 .button{
     border-radius: 5px;
     border: none;
-    width: 100px;
+    width: 70px;
     height: 45px;
     cursor: pointer;
     color: hsl(0, 0%, 86%);
