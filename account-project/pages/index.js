@@ -60,7 +60,7 @@ export default function HomePage() {
         alert('Funding failed');
         return
       }
-      let balance = await contract.getDeposit(getAccount);
+      let balance = await contract.getDeposit(address);
       balance = ethers.utils.formatEther(balance);
       setBalance(balance);
     }
@@ -73,16 +73,16 @@ export default function HomePage() {
     try {
       e.preventDefault();
       const amount = ethers.utils.parseEther(amountInput);
-      const accountTx = await contract.withdrawFromAccount(address, addressInput, amount);
+      const accountTx = await contract.sendFund(address, addressInput, amount);
       const receipt = await accountTx.wait();
       if (receipt.status === 1) {
-        alert('Funding successful');
+        alert('Transfer successful');
       }
       else {
-        alert('Funding failed');
+        alert('Transfer failed');
         return
       }
-      let balance = await contract.getDeposit(getAccount);
+      let balance = await contract.getDeposit(address);
       balance = ethers.utils.formatEther(balance);
       setBalance(balance);
     }
@@ -118,8 +118,10 @@ export default function HomePage() {
                   className={styles.input}
                   onChange={e => updateAddressInput(e.target.value)}
                 />
-                <button className={styles.button} type="button" onClick={addFund}>Fund</button>
-                <button className={styles.button} type="button" onClick={sendFund}>Send</button>
+                <div className={styles.buttondiv}>
+                  <button className={styles.button} type="button" onClick={addFund}>Fund</button>
+                  <button className={styles.button} type="button" onClick={sendFund}>Send</button>
+                </div>
               </div>
             )}
         </>
