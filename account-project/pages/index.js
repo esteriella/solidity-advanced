@@ -10,6 +10,8 @@ export default function HomePage() {
   const [contract, setContract] = useState(null);
   const [balance, setBalance] = useState(null);
   const [address, setAddress] = useState(null);
+  const [amountInput, updateAmountInput] = useState("");  
+  const [addressInput, updateAddressInput] = useState("");
   const [loadingState, setLoadingState] = useState(false);
 
   useEffect(() => {
@@ -38,20 +40,18 @@ export default function HomePage() {
       const getAccount = await acctContract.getCreatedAddress(signerAddress, salt);
       console.log(getAccount);
       setAddress(getAccount);
-      let balance = await acctContract.balanceOf(getAccount);
+      let balance = await acctContract.getDeposit(getAccount);
       balance = ethers.utils.formatEther(balance);
       setBalance(balance);
       setLoadingState(true);
     });
   }, []);
 
-  const fundAccount = async (e) => {
-    console.log("la fuq")
+  const addFund = async (e) => {
     try {
       e.preventDefault();
-      const amount = e.target[0].value;
-      const amt = ethers.utils.parseEther(amount);
-      const accountTx = await contract.fundWallet(address, { value: amt });
+      const amount = ethers.utils.parseEther(amountInput);
+      const accountTx = await contract.addDeposit(address, { value: amount });
       const receipt = await accountTx.wait();
       if (receipt.status === 1) {
         alert('Funding successful');
@@ -60,7 +60,7 @@ export default function HomePage() {
         alert('Funding failed');
         return
       }
-      let balance = await contract.balanceOf(getAccount);
+      let balance = await contract.getDeposit(getAccount);
       balance = ethers.utils.formatEther(balance);
       setBalance(balance);
     }
@@ -69,6 +69,27 @@ export default function HomePage() {
     }
   };
   
+  const sendFund = async (e) => {
+    try {
+      e.preventDefault();
+      const amount = ethers.utils.parseEther(amountInput);
+      const accountTx = await contract.withdrawFromAccount(address, addressInput, amount);
+      const receipt = await accountTx.wait();
+      if (receipt.status === 1) {
+        alert('Funding successful');
+      }
+      else {
+        alert('Funding failed');
+        return
+      }
+      let balance = await contract.getDeposit(getAccount);
+      balance = ethers.utils.formatEther(balance);
+      setBalance(balance);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <main className={styles.main}>
@@ -77,7 +98,7 @@ export default function HomePage() {
             {loadingState === false ? (
               <p>Loading...</p>
             ):(
-              <form onSubmit={fundAccount} className={styles.container}>
+              <div className={styles.container}>
                 <h3>Abstracted Wallet</h3>
                 {address === null || address === undefined ? 
                   (<></>):(<p>Address:<br/><small className={styles.small}>{address}</small></p>)              
@@ -89,9 +110,17 @@ export default function HomePage() {
                   inputMode="decimal"
                   placeholder="Amount"
                   className={styles.input}
+                  onChange={e => updateAmountInput(e.target.value)}
                 />
-                <button className={styles.button} type="submit">Fund</button>
-              </form>
+                <input
+                  type="text"
+                  placeholder="Input Address if you want to send"
+                  className={styles.input}
+                  onChange={e => updateAddressInput(e.target.value)}
+                />
+                <button className={styles.button} type="button" onClick={addFund}>Fund</button>
+                <button className={styles.button} type="button" onClick={sendFund}>Send</button>
+              </div>
             )}
         </>
       )}
