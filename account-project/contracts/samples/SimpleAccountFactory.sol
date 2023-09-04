@@ -21,10 +21,10 @@ contract SimpleAccountFactory {
     }
 
     /**
-     * Create an account and return its address.
-     * Returns the address even if the account is already deployed.
-     * Note that during UserOperation execution, this method is called only if the account is not deployed.
-     * This method returns an existing account address so that entryPoint.getSenderAddress() would work even after account creation.
+     * create an account and return its address.
+     * returns the address even if the account is already deployed.
+     * note that during UserOperation execution, this method is called only if the account is not deployed.
+     * this method returns an existing account address so that entryPoint.getSenderAddress() would work even after account creation.
      */
     function createAccount(address owner, uint256 salt) public returns (SimpleAccount) {
         address addr = getCreatedAddress(owner, salt);
@@ -40,16 +40,8 @@ contract SimpleAccountFactory {
         return SimpleAccount(payable(proxyAddress));
     }
 
-    
-    /**
-     * Add funds to a wallet.
-     */
-    function fundWallet(address account) public payable {
-        balance[account] += msg.value;
-    }
-
-    /**
-     * Calculate the counterfactual address of this account as it would be returned by createAccount().
+     /**
+     * calculate the counterfactual address of this account as it would be returned by createAccount().
      */
     function getCreatedAddress(address newaddress, uint256  newsalt) public view returns (address) {
         return Create2.computeAddress(
@@ -61,13 +53,29 @@ contract SimpleAccountFactory {
                 )
             )
         );
-    }
-
+    }  
 
     /**
-     * Get the balance of a wallet.
+     * check current account deposit in the entryPoint
      */
-    function balanceOf(address account) public view returns (uint256) {
+    function getDeposit(address account) public view returns (uint256) {
         return balance[account];
     }
+
+    /**
+     * deposit more funds for this account in the entryPoint
+     */
+    function addDeposit(address account) public payable {
+        balance[account] += msg.value;
+    }
+
+    /**
+     * withdraw funds from a specific SimpleAccount to an external address.
+     * @param account The SimpleAccount address to withdraw from.
+     * @param withdrawAddress The external address to send the funds to.
+     * @param amount The amount to withdraw.
+     */
+    function withdrawFromAccount(address account, address payable withdrawAddress, uint256 amount) public {
+        SimpleAccount(payable(account)).withdrawDepositTo(withdrawAddress, amount);
+    }  
 }
