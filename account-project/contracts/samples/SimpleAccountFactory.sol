@@ -15,9 +15,16 @@ import "./SimpleAccount.sol";
 contract SimpleAccountFactory {
     SimpleAccount public immutable accountImplementation;
     mapping(address => uint) private balance;
+    address public owner;
 
     constructor(IEntryPoint _entryPoint) {
         accountImplementation = new SimpleAccount(_entryPoint);
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
     }
 
     /**
@@ -26,8 +33,8 @@ contract SimpleAccountFactory {
      * note that during UserOperation execution, this method is called only if the account is not deployed.
      * this method returns an existing account address so that entryPoint.getSenderAddress() would work even after account creation.
      */
-    function createAccount(address owner, uint256 salt) public returns (SimpleAccount) {
-        address addr = getCreatedAddress(owner, salt);
+    function createAccount(address _owner, uint256 salt) public returns (SimpleAccount) {
+        address addr = getCreatedAddress(_owner, salt);
         uint256 codeSize = addr.code.length;
         if (codeSize > 0) {
             return SimpleAccount(payable(addr));
@@ -35,7 +42,7 @@ contract SimpleAccountFactory {
 
         address proxyAddress = address(new ERC1967Proxy{salt: bytes32(salt)}(
             address(accountImplementation),
-            abi.encodeWithSignature("initialize(address)", owner)
+            abi.encodeWithSignature("initialize(address)", _owner)
         ));
         return SimpleAccount(payable(proxyAddress));
     }
@@ -69,13 +76,15 @@ contract SimpleAccountFactory {
         balance[account] += msg.value;
     }
 
-    /**
-     * withdraw funds from a specific SimpleAccount to an external address.
+     /**
+     * send funds from a specific SimpleAccount to an external address.
      * @param account The SimpleAccount address to withdraw from.
-     * @param withdrawAddress The external address to send the funds to.
+     * @param recipient The external address to send the funds to
      * @param amount The amount to withdraw.
      */
-    function withdrawFromAccount(address account, address payable withdrawAddress, uint256 amount) public {
-        SimpleAccount(payable(account)).withdrawDepositTo(withdrawAddress, amount);
-    }  
+    function sendFund(address account ,address payable recipient, uint256 amount)  public onlyOwner {
+        require(balance[account] >= amount, "Insufficient balance in the contract");
+        recipient.transfer(amount);
+        balance[account] -= amount;
+    }
 }
