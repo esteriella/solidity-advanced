@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./Insurance.sol"; // Import the Insurance contract from the same directory
+// Import the Insurance contract from the same directory
+import "./Insurance.sol"; 
 
+// LoanInsurance contract inherits from Insurance contract
 contract LoanInsurance is Insurance {
     // Constructor to initialize the insurance contract
     constructor(address _insured, uint _premium, uint _coverageAmount) Insurance(_insured, _premium, _coverageAmount) {}
